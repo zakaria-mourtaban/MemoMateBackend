@@ -14,6 +14,7 @@ interface IUserMethods {
   matchPassword(enteredPassword: string): Promise<boolean>;
   addWorkspace(workspace: IWorkspace): Promise<void>;
   updateWorkspace(workspaceId: string, updates: Partial<IWorkspace>): Promise<boolean>;
+  deleteWorkspace(workspaceId: string): Promise<boolean>;
 
 }
 
