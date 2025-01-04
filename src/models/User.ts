@@ -12,6 +12,7 @@ interface IWorkspace {
 // Extended methods interface for TypeScript support
 interface IUserMethods {
   matchPassword(enteredPassword: string): Promise<boolean>;
+  addWorkspace(workspace: IWorkspace): Promise<void>;
 
 }
 
