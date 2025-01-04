@@ -3,9 +3,20 @@
   "module": "src/index.ts",
   "type": "module",
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bcryptjs": "^2.4.6",
+    "@types/bun": "latest",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.7"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "expressjs": "^1.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.3"
   }
 }
