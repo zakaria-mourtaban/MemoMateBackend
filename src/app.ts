@@ -11,7 +11,6 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
-
 app.use((req, res, next) => {
   res.status(404).json({ message: "Not Found" });
 });
