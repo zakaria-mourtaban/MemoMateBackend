@@ -24,7 +24,7 @@ const userSchema = new Schema<IUser, UserModel>(
   { timestamps: true }
 );
 
-// Pre-save middleware with proper this typing
+// this automatically hashes the "password" field, it is localized so that i dont have to call it manually
 userSchema.pre<IUser>('save', async function(this: IUser, next) {
   if (!this.isModified("password")) return next();
 
