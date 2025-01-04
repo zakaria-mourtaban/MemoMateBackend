@@ -15,7 +15,7 @@ interface IUserMethods {
   addWorkspace(workspace: IWorkspace): Promise<void>;
   updateWorkspace(workspaceId: string, updates: Partial<IWorkspace>): Promise<boolean>;
   deleteWorkspace(workspaceId: string): Promise<boolean>;
-
+  addChildToWorkspace(workspaceId: string, child: IWorkspace): Promise<boolean>;
 }
 
 // Combine the Document type with our custom methods
