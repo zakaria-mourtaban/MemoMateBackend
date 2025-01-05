@@ -24,7 +24,7 @@ const createWorkspace = async (req: Request, res: Response): Promise<any> => {
 				.status(400)
 				.json({ message: "Workspace name is required." });
 		}
-		const newWorkspace = await WorkspaceObject.create({ name }); //create the new workspace object
+		const newWorkspace = await WorkspaceObject.create({ name , userId}); //create the new workspace object
 
 		const updatedUser = await User.findByIdAndUpdate(
 			userId,
@@ -112,10 +112,13 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 
 		const workspace = await Workspace.findById(id);
 		if (!workspace) {
+
 			console.log("here")
 			const workspaceObj = await WorkspaceObject.findById(id);
 			if (!workspaceObj)
 				return res.status(404).json({ message: "Workspace not found" });
+			if (workspaceObj?.ownerId != userId)
+				return res.status(401).json({ message: "Not authorized." });
 			const newNode = new Workspace({
 				_id: new mongoose.Types.ObjectId().toString(),
 				name,
@@ -130,6 +133,8 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 				workspace: workspaceObj,
 			});
 		} else {
+			if (workspace?.ownerId != userId)
+				return res.status(401).json({ message: "Not authorized." });
 			// Create new workspace node with unique ID
 			const newNode = new Workspace({
 				_id: new mongoose.Types.ObjectId().toString(),
@@ -148,37 +153,6 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 		}
 	} catch (error) {
 		console.error("Error adding to workspace:", error);
-		return res
-			.status(500)
-			.json({ message: "Internal Server Error", error });
-	}
-};
-
-const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
-	try {
-		const userId = req.user?._id;
-		const id = req.params.id;
-		const { workspace } = req.body;
-
-		if (!userId || !id || !workspace) {
-			return res.status(400).json({ message: "Missing required fields" });
-		}
-
-		const workspaceObj = await WorkspaceObject.findById(id);
-		if (!workspaceObj) {
-			return res.status(404).json({ message: "Workspace not found" });
-		}
-
-		// Update the entire workspace structure
-		workspaceObj.workspace = workspace;
-		await workspaceObj.save();
-
-		return res.status(200).json({
-			message: "Workspace updated successfully",
-			workspace: workspaceObj,
-		});
-	} catch (error) {
-		console.error("Error updating workspace:", error);
 		return res
 			.status(500)
 			.json({ message: "Internal Server Error", error });
