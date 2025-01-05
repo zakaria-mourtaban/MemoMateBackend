@@ -9,12 +9,12 @@ router.use(protect)
 router.post("/workspace", createWorkspace)
 
 //fetch workspace
-router.post("/workspace/:id", fetchWorkspace)
+router.get("/workspace/:workspaceID", fetchWorkspace)
 
 //update workspace
-router.patch("/workspace/:id", updateWorkspace)
+router.patch("/workspace/:workspaceID", updateWorkspace)
 
 //destroy workspace
-router.delete("/workspace/:id", destroyWorkspace)
+router.delete("/workspace/:workspaceID", destroyWorkspace)
 
 export default router;

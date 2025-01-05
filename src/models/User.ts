@@ -10,7 +10,7 @@ export interface IUser extends Document {
 	email: string;
 	password: string;
 	matchPassword(enteredPassword: string): Promise<boolean>;
-	workspacesObjects: IWorkspaceObject[];
+	workspacesObjects: mongoose.Types.ObjectId[];
 }
 
 // Create a type that knows about both the document and methods
@@ -21,10 +21,7 @@ const userSchema = new Schema<IUser, UserModel>(
 		name: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
-		workspacesObjects: {
-			type: [workspaceObjectSchema],
-			default: [],
-		},
+		workspacesObjects: [{ type: Schema.Types.ObjectId, ref: "Workspace" }],
 	},
 	{ timestamps: true }
 );
