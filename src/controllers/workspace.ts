@@ -46,7 +46,7 @@ const createWorkspace = async (req: Request, res: Response): Promise<any> => {
 const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
     try {
         const userId = req.user?._id;
-        const workspaceId = req.params.workspaceId; // Get workspace ID from route params
+        const workspaceId = req.params.workspaceID; // Get workspace ID from route params
 
         if (!userId) {
             return res.status(401).json({ message: "Unauthorized. User not found." });
