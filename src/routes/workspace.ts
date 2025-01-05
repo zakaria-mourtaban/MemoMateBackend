@@ -1,20 +1,31 @@
 import express, { Request, Response } from "express";
-import { createWorkspace, destroyWorkspace, fetchWorkspace, updateWorkspace } from "../controllers/workspace";
+import { 
+    createWorkspace, 
+    addToWorkspace, 
+    fetchWorkspace, 
+    updateWorkspace, 
+    deleteFromWorkspace 
+} from "../controllers/workspace";
 import { protect } from "../middleware/auth";
 
 const router = express.Router();
 
-router.use(protect)
-//create workspace
-router.post("/workspace", createWorkspace)
+// Apply authentication middleware to all routes
+router.use(protect);
 
-//fetch workspace
-router.get("/workspace/:workspaceID", fetchWorkspace)
+// Create a new workspace
+router.post("/workspace", createWorkspace);
 
-//update workspace
-router.patch("/workspace/:workspaceID", updateWorkspace)
+// Fetch a specific workspace
+router.get("/workspace/:id", fetchWorkspace);
 
-//destroy workspace
-router.delete("/workspace/:workspaceID", destroyWorkspace)
+// Add a new node to workspace
+router.post("/workspace/:id/add", addToWorkspace);
+
+// Update workspace structure
+router.put("/workspace/:id", updateWorkspace);
+
+// Delete node from workspace
+router.put("/workspace/:id/delete", deleteFromWorkspace);
 
 export default router;
