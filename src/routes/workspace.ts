@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { createWorkspace, destroyWorkspace, fetchWorkspace, updateWorkspace } from "../controllers/workspace";
 
 const router = express.Router();
 
