@@ -4,7 +4,7 @@ import mongoose, { Schema, Document, Model } from "mongoose";
 export interface IWorkspaceObject extends Document {
   _id: string;
   name: string;
-  workspace: IWorkspace;
+  workspace: IWorkspace | null;
 }
 
 export interface IWorkspace extends Document {
@@ -17,7 +17,7 @@ export interface IWorkspace extends Document {
 export const workspaceObjectSchema = new Schema<IWorkspaceObject>(
   {
     name: { type: String, required: true },
-    workspace: { type: Schema.Types.ObjectId, ref: "Workspace", required: true },
+		workspace: { type: Schema.Types.ObjectId, ref: "Workspace", default: null},
   },
   { timestamps: true }
 );
