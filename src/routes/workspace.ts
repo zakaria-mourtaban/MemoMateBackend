@@ -3,7 +3,6 @@ import {
     createWorkspace, 
     addToWorkspace, 
     fetchWorkspace, 
-    updateWorkspace, 
     deleteFromWorkspace 
 } from "../controllers/workspace";
 import { protect } from "../middleware/auth";
@@ -22,8 +21,6 @@ router.get("/workspace/:id", fetchWorkspace);
 // Add a new node to workspace
 router.post("/workspace/:id/add", addToWorkspace);
 
-// Update workspace structure
-router.put("/workspace/:id", updateWorkspace);
 
 // Delete node from workspace
 router.put("/workspace/:id/delete", deleteFromWorkspace);
