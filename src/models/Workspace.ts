@@ -14,7 +14,7 @@ export interface IWorkspace extends Document {
 }
 
 // Define Schema for WorkspaceObject
-const workspaceObjectSchema = new Schema<IWorkspaceObject>(
+export const workspaceObjectSchema = new Schema<IWorkspaceObject>(
   {
     name: { type: String, required: true },
     workspace: { type: Schema.Types.ObjectId, ref: "Workspace", required: true },

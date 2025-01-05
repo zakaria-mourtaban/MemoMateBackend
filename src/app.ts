@@ -2,6 +2,7 @@ import express, { Application } from "express";
 import dotenv from "dotenv";
 import connectDB from "./config/db";
 import authRoutes from "./routes/auth";
+import workspaceRoutes from "./routes/workspace"
 
 dotenv.config();
 connectDB();
@@ -11,6 +12,7 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/", workspaceRoutes)
 app.use((req, res, next) => {
   res.status(404).json({ message: "Not Found" });
 });

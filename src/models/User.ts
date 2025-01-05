@@ -1,6 +1,7 @@
 // Add missing mongoose import for Model
 import mongoose, { Model, Schema, Document, ObjectId } from "mongoose";
 import bcrypt from "bcryptjs";
+import { IWorkspaceObject, workspaceObjectSchema } from "./Workspace";
 
 // Combine the Document type with our custom methods
 export interface IUser extends Document {
@@ -9,6 +10,7 @@ export interface IUser extends Document {
 	email: string;
 	password: string;
 	matchPassword(enteredPassword: string): Promise<boolean>;
+	workspacesObjects: IWorkspaceObject[];
 }
 
 // Create a type that knows about both the document and methods
@@ -19,11 +21,15 @@ const userSchema = new Schema<IUser, UserModel>(
 		name: { type: String, required: true },
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
+		workspacesObjects: {
+			type: [workspaceObjectSchema],
+			default: [],
+		},
 	},
 	{ timestamps: true }
 );
 
-// this automatically hashes the "password" field, it is localized so that i dont have to call it manually
+// This automatically hashes the "password" field, it is localized so that you dont have to call it manually
 userSchema.pre<IUser>("save", async function (this: IUser, next) {
 	if (!this.isModified("password")) return next();
 
@@ -33,9 +39,9 @@ userSchema.pre<IUser>("save", async function (this: IUser, next) {
 });
 
 userSchema.methods.matchPassword = async function (
-    enteredPassword: string
+	enteredPassword: string
 ): Promise<boolean> {
-    return bcrypt.compare(enteredPassword, this.password);
+	return bcrypt.compare(enteredPassword, this.password);
 };
 
 const User = mongoose.model<IUser, UserModel>("User", userSchema);
