@@ -24,7 +24,7 @@ const createWorkspace = async (req: Request, res: Response): Promise<any> => {
 				.status(400)
 				.json({ message: "Workspace name is required." });
 		}
-		const newWorkspace = await WorkspaceObject.create({ name , userId}); //create the new workspace object
+		const newWorkspace = await WorkspaceObject.create({ name, userId }); //create the new workspace object
 
 		const updatedUser = await User.findByIdAndUpdate(
 			userId,
@@ -112,8 +112,7 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 
 		const workspace = await Workspace.findById(id);
 		if (!workspace) {
-
-			console.log("here")
+			console.log("here");
 			const workspaceObj = await WorkspaceObject.findById(id);
 			if (!workspaceObj)
 				return res.status(404).json({ message: "Workspace not found" });
@@ -143,8 +142,8 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			});
 
 			workspace && workspace.children?.push(newNode);
-			await newNode.save()
-			await workspace.save()
+			await newNode.save();
+			await workspace.save();
 			return res.status(200).json({
 				message: "Node added successfully",
 				node: newNode,
@@ -166,25 +165,27 @@ const deleteFromWorkspace = async (
 	try {
 		const userId = req.user?._id;
 		const id = req.params.id;
-		const { workspace, deletedNodeId } = req.body;
+		const { deletedNodeId } = req.body;
 
-		if (!userId || !id || !workspace || !deletedNodeId) {
+		if (!userId || !id || !deletedNodeId) {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
 		const workspaceObj = await WorkspaceObject.findById(id);
 		if (!workspaceObj) {
-			return res.status(404).json({ message: "Workspace not found" });
+			const workspace = await Workspace.findById(id);
+			if (!workspace)
+				return res.status(404).json({ message: "Workspace not found" });
+			workspace.deleteOne();
+			return res.status(200).json({
+				message: "Node deleted successfully",
+			});
+		} else {
+			workspaceObj.deleteOne();
+			return res.status(200).json({
+				message: "Node deleted successfully",
+			});
 		}
-
-		// Update with new structure (node already removed from the client-side)
-		workspaceObj.workspace = workspace;
-		await workspaceObj.save();
-
-		return res.status(200).json({
-			message: "Node deleted successfully",
-			workspace: workspaceObj,
-		});
 	} catch (error) {
 		console.error("Error deleting from workspace:", error);
 		return res
@@ -193,10 +194,4 @@ const deleteFromWorkspace = async (
 	}
 };
 
-export {
-	createWorkspace,
-	fetchWorkspace,
-	updateWorkspace,
-	deleteFromWorkspace,
-	addToWorkspace,
-};
+export { createWorkspace, fetchWorkspace, deleteFromWorkspace, addToWorkspace };
