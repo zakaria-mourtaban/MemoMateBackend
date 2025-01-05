@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import {
 	IWorkspaceObject,
+	IWorkspace,
 	Workspace,
 	WorkspaceObject,
 } from "../models/Workspace";
@@ -83,12 +84,100 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
     }
 };
 
-const updateWorkspace = (req: Request, res: Response) => {
-	const { name, email, password } = req.body;
+const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const userId = req.user?._id;
+        const workspaceId = req.params.id;
+        const { name } = req.body;
+
+        if (!userId || !workspaceId || !name) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const workspaceObj = await WorkspaceObject.findById(workspaceId);
+        if (!workspaceObj) {
+            return res.status(404).json({ message: "Workspace not found" });
+        }
+
+        // Create new workspace node with unique ID
+        const newNode = {
+            _id: new mongoose.Types.ObjectId().toString(),
+            name,
+            children: []
+        };
+
+        // Add new node to workspace structure
+        workspaceObj.workspace.children.push(newNode);
+        await workspaceObj.save();
+
+        return res.status(200).json({
+            message: "Node added successfully",
+            node: newNode,
+            workspace: workspaceObj
+        });
+    } catch (error) {
+        console.error("Error adding to workspace:", error);
+        return res.status(500).json({ message: "Internal Server Error", error });
+    }
 };
 
-const destroyWorkspace = (req: Request, res: Response) => {
-	const { name, email, password } = req.body;
+const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const userId = req.user?._id;
+        const workspaceId = req.params.id;
+        const { workspace } = req.body;
+
+        if (!userId || !workspaceId || !workspace) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const workspaceObj = await WorkspaceObject.findById(workspaceId);
+        if (!workspaceObj) {
+            return res.status(404).json({ message: "Workspace not found" });
+        }
+
+        // Update the entire workspace structure
+        workspaceObj.workspace = workspace;
+        await workspaceObj.save();
+
+        return res.status(200).json({
+            message: "Workspace updated successfully",
+            workspace: workspaceObj
+        });
+    } catch (error) {
+        console.error("Error updating workspace:", error);
+        return res.status(500).json({ message: "Internal Server Error", error });
+    }
 };
 
-export { createWorkspace, fetchWorkspace, updateWorkspace, destroyWorkspace };
+const deleteFromWorkspace = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const userId = req.user?._id;
+        const workspaceId = req.params.id;
+        const { workspace, deletedNodeId } = req.body;
+
+        if (!userId || !workspaceId || !workspace || !deletedNodeId) {
+            return res.status(400).json({ message: "Missing required fields" });
+        }
+
+        const workspaceObj = await WorkspaceObject.findById(workspaceId);
+        if (!workspaceObj) {
+            return res.status(404).json({ message: "Workspace not found" });
+        }
+
+        // Update with new structure (node already removed from the client-side)
+        workspaceObj.workspace = workspace;
+        await workspaceObj.save();
+
+        return res.status(200).json({
+            message: "Node deleted successfully",
+            workspace: workspaceObj
+        });
+    } catch (error) {
+        console.error("Error deleting from workspace:", error);
+        return res.status(500).json({ message: "Internal Server Error", error });
+    }
+};
+
+
+export { createWorkspace, fetchWorkspace, updateWorkspace, deleteFromWorkspace, addToWorkspace };
