@@ -1,4 +1,5 @@
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { Chroma } from "@langchain/community/vectorstores/chroma";
 
 const llm = new ChatOpenAI({
 	model: "gpt-4o-mini",
@@ -7,4 +8,8 @@ const llm = new ChatOpenAI({
 
 const embeddings = new OpenAIEmbeddings({
 	model: "text-embedding-3-large",
+});
+
+const vectorStore = new Chroma(embeddings, {
+	collectionName: "a-test-collection",
 });
