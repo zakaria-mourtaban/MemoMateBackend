@@ -13,3 +13,5 @@ const embeddings = new OpenAIEmbeddings({
 const vectorStore = new Chroma(embeddings, {
 	collectionName: "a-test-collection",
 });
+
+export { vectorStore, embeddings, llm };
