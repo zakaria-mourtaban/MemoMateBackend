@@ -28,6 +28,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "expressjs": "^1.0.1",
+    "faiss-node": "^0.5.1",
     "jest": "^29.7.0",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.3.10",
