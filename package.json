@@ -23,6 +23,8 @@
     "@types/jest": "^29.5.14",
     "@types/supertest": "^6.0.2",
     "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0",
+    "chromadb": "^1.10.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "expressjs": "^1.0.1",

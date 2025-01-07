@@ -1,5 +1,6 @@
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
-import { Chroma } from "@langchain/community/vectorstores/chroma";
+import { FaissStore } from "@langchain/community/vectorstores/faiss";
+
 
 const llm = new ChatOpenAI({
 	model: "gpt-4o-mini",
@@ -10,8 +11,6 @@ const embeddings = new OpenAIEmbeddings({
 	model: "text-embedding-3-large",
 });
 
-const vectorStore = new Chroma(embeddings, {
-	collectionName: "a-test-collection",
-});
+const vectorStore = new FaissStore(embeddings, {});
 
 export { vectorStore, embeddings, llm };
