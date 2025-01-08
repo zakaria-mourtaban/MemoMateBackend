@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import multer from "multer";
 import {
 	IWorkspaceObject,
 	IWorkspace,
@@ -7,7 +8,8 @@ import {
 } from "../models/Workspace";
 import User from "../models/User";
 import mongoose from "mongoose";
-
+import path from "path";
+import fs from "fs";
 const createWorkspace = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const { name } = req.body;
@@ -110,17 +112,25 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
+		// Check if a file was uploaded
+		const file = req.file;
+		if (!file) {
+			return res.status(400).json({ message: "File is required." });
+		}
+
 		const workspace = await Workspace.findById(id);
 		if (!workspace) {
-			console.log("here");
 			const workspaceObj = await WorkspaceObject.findById(id);
-			if (!workspaceObj)
+			if (!workspaceObj) {
 				return res.status(404).json({ message: "Workspace not found" });
-			if (workspaceObj?.ownerId != userId)
+			}
+			if (workspaceObj?.ownerId != userId) {
 				return res.status(401).json({ message: "Not authorized." });
+			}
 			const newNode = new Workspace({
 				_id: new mongoose.Types.ObjectId().toString(),
 				name,
+				file: file.filename, // Save file metadata in the workspace
 				children: [],
 			});
 			workspaceObj.workspace = newNode;
@@ -132,12 +142,13 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 				workspace: workspaceObj,
 			});
 		} else {
-			if (workspace?.ownerId != userId)
+			if (workspace?.ownerId != userId) {
 				return res.status(401).json({ message: "Not authorized." });
-			// Create new workspace node with unique ID
+			}
 			const newNode = new Workspace({
 				_id: new mongoose.Types.ObjectId().toString(),
 				name,
+				file: file.filename, // Save file metadata in the workspace
 				children: [],
 			});
 
@@ -174,16 +185,39 @@ const deleteFromWorkspace = async (
 		const workspaceObj = await WorkspaceObject.findById(id);
 		if (!workspaceObj) {
 			const workspace = await Workspace.findById(id);
-			if (!workspace)
+			if (!workspace) {
 				return res.status(404).json({ message: "Workspace not found" });
-			workspace.deleteOne();
+			}
+			// Optionally delete the associated file from the filesystem
+			if (workspace.file) {
+				const filePath = path.join(
+					__dirname,
+					"../uploads",
+					workspace.file
+				);
+				if (fs.existsSync(filePath)) {
+					fs.unlinkSync(filePath); // Delete the file
+				}
+			}
+			await workspace.deleteOne();
 			return res.status(200).json({
-				message: "Node deleted successfully",
+				message: "Node and associated file deleted successfully",
 			});
 		} else {
-			workspaceObj.deleteOne();
+			// Optionally delete the associated file from the filesystem
+			if (workspaceObj.file) {
+				const filePath = path.join(
+					__dirname,
+					"../uploads",
+					workspaceObj.file
+				);
+				if (fs.existsSync(filePath)) {
+					fs.unlinkSync(filePath); // Delete the file
+				}
+			}
+			await workspaceObj.deleteOne();
 			return res.status(200).json({
-				message: "Node deleted successfully",
+				message: "Node and associated file deleted successfully",
 			});
 		}
 	} catch (error) {
