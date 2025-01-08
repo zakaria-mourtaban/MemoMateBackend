@@ -115,16 +115,11 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 
 		// Check if a file was uploaded
 		const file = req.file;
-		if (!file) {
-			return res.status(400).json({ message: "File is required." });
-		}
 
 		// Fetch the Workspace
 		const workspace = await Workspace.findById(workspaceId);
 		if (!workspace) {
-			return res
-				.status(404)
-				.json({ message: "Workspace not found." });
+			return res.status(404).json({ message: "Workspace not found." });
 		}
 
 		if (workspace.ownerId.toString() !== userId.toString()) {
@@ -136,23 +131,22 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			_id: new mongoose.Types.ObjectId().toString(),
 			ownerId: userId,
 			name,
-			file: file.filename, // Save file metadata
-			children: [],
+			file: file ? file.filename : null, // Save file metadata only if provided
+			children: file ? null : [], // Set children to null if there's a file, otherwise an empty array
 		});
 
+		// Add the new file's ID to the workspace's workspace array
 		workspace.workspace?.push(newFile._id);
 		await newFile.save();
 		await workspace.save();
 
 		return res.status(200).json({
-			message: "File added successfully",
+			message: "File or folder added successfully",
 			workspace,
 		});
 	} catch (error) {
 		console.error("Error adding to workspace:", error);
-		return res
-			.status(500)
-			.json({ message: "Internal Server Error", error });
+		return res.status(500).json({ message: "Internal Server Error", error });
 	}
 };
 
