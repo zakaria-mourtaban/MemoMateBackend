@@ -181,7 +181,7 @@ const deleteFromWorkspace = async (
 			return res.status(404).json({ message: "File node not found." });
 		}
 
-		// Optionally delete the associated file from the filesystem
+		// Delete the associated file from the filesystem
 		if (fileNode.file) {
 			const filePath = path.join(
 				__dirname,
