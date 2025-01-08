@@ -25,7 +25,7 @@ const storage: StorageEngine = multer.diskStorage({
 
 // File filter to validate allowed file types
 const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
-  const allowedFileTypes = /pdf|docx|excalidraw/;
+  const allowedFileTypes = /pdf|docx|excalidraw|text/;
   const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = allowedFileTypes.test(file.mimetype);
 
@@ -39,7 +39,7 @@ const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilt
 // Create Multer instance
 const upload = multer({
   storage,
-  fileFilter,
+//   fileFilter,
   limits: { fileSize: 30 * 1024 * 1024 }, // 30MB file size limit
 });
 

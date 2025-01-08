@@ -1,50 +1,56 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 // Define interfaces
-export interface IWorkspaceObject extends Document {
-	_id: string;
-	ownerId: string;
-	name: string;
-	workspace: IWorkspace | null;
-}
-
 export interface IWorkspace extends Document {
 	_id: string;
 	ownerId: string;
 	name: string;
+	workspace: IFile[] | null;
+}
+
+export interface IFile extends Document {
+	_id: string;
+	ownerId: string;
+	name: string;
 	file: string;
-	children?: IWorkspace[];
+	children?: IFile[];
 }
 
 // Define Schema for WorkspaceObject
-export const workspaceObjectSchema = new Schema<IWorkspaceObject>(
+export const workspaceSchema = new Schema<IWorkspace>(
 	{
-		ownerId: { type: String, required : true},
+		ownerId: { type: String, required: true },
 		name: { type: String, required: true },
-		workspace: {
-			type: Schema.Types.ObjectId,
-			ref: "Workspace",
-			default: null,
-		},
+		workspace: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "Workspace",
+			},
+		],
 	},
 	{ timestamps: true }
 );
 
 // Define Schema for Workspace
-const workspaceSchema = new Schema<IWorkspace>(
+const fileSchema = new Schema<IFile>(
 	{
-		ownerId: { type: String, required : true},
+		file: { type: String, required: true },
+		ownerId: { type: String, required: true },
 		name: { type: String, required: true },
-		children: [{ type: Schema.Types.ObjectId, ref: "Workspace" }],
+		children: [
+			{
+				type: Schema.Types.ObjectId,
+				ref: "Workspace",
+			},
+		],
 	},
 	{ timestamps: true }
 );
 
 // Create models
-export const WorkspaceObject: Model<IWorkspaceObject> =
-	mongoose.model<IWorkspaceObject>("WorkspaceObject", workspaceObjectSchema);
-
 export const Workspace: Model<IWorkspace> = mongoose.model<IWorkspace>(
-	"Workspace",
+	"Workspaces",
 	workspaceSchema
 );
+
+export const File: Model<IFile> = mongoose.model<IFile>("Files", fileSchema);
