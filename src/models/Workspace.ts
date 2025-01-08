@@ -5,7 +5,7 @@ export interface IWorkspace extends Document {
 	_id: string;
 	ownerId: string;
 	name: string;
-	workspace: IFile[] | null;
+	workspace: String[] | null;
 }
 
 export interface IFile extends Document {
