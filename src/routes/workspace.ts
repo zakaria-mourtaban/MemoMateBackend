@@ -6,6 +6,7 @@ import {
     deleteFromWorkspace 
 } from "../controllers/workspace";
 import { protect } from "../middleware/auth";
+import uploadMiddleware from "../middleware/upload";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.post("/workspace", createWorkspace);
 router.get("/workspace/:id", fetchWorkspace);
 
 // Add a new node to workspace
-router.post("/workspace/:id/add", addToWorkspace);
+router.post("/workspace/:id/add", uploadMiddleware, addToWorkspace);
 
 
 // Delete node from workspace
