@@ -12,6 +12,7 @@ export interface IWorkspace extends Document {
 	_id: string;
 	ownerId: string;
 	name: string;
+	file: string;
 	children?: IWorkspace[];
 }
 
