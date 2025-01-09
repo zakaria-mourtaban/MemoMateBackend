@@ -1,7 +1,6 @@
 // Add missing mongoose import for Model
 import mongoose, { Model, Schema, Document, ObjectId } from "mongoose";
 import bcrypt from "bcryptjs";
-import { IWorkplace, workspaceSchema } from "./Workspace";
 
 // Combine the Document type with our custom methods
 export interface IUser extends Document {
