@@ -33,5 +33,16 @@ export class RAGController {
             }
             throw new Error("Vector store not found and no documents provided");
         }
+	}
+	
+	private static async processFileContent(file: IFile): Promise<string[]> {
+        // Read file content and split into chunks
+        const splitter = new RecursiveCharacterTextSplitter({
+            chunkSize: 1000,
+            chunkOverlap: 200,
+        });
+
+        const docs = await splitter.splitText(file.file);
+        return docs;
     }
 }
