@@ -8,5 +8,9 @@ export class RAGController {
             console.error("Error creating vector store directory:", error);
             throw error;
         }
+	}
+	
+	private static getVectorStorePath(chatId: string) {
+        return join(VECTOR_STORE_DIR, `${chatId}_store`);
     }
 }
