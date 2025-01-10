@@ -44,5 +44,33 @@ export class RAGController {
 
         const docs = await splitter.splitText(file.file);
         return docs;
+	}
+	
+	static async initializeChat(req: Request, res: Response) {
+        try {
+            await this.ensureVectorStoreDir();
+            const { chatId, fileIds } = req.body;
+
+            // Fetch all files
+            const files = await File.find({ _id: { $in: fileIds } });
+            if (!files.length) {
+                return res.status(404).json({ error: "No files found" });
+            }
+
+            // Process all files and combine their content
+            const allDocuments: string[] = [];
+            for (const file of files) {
+                const documents = await this.processFileContent(file);
+                allDocuments.push(...documents);
+            }
+
+            // Create and save vector store
+            await this.loadOrCreateVectorStore(chatId, allDocuments);
+
+            res.status(200).json({ message: "Chat initialized successfully" });
+        } catch (error) {
+            console.error("Error initializing chat:", error);
+            res.status(500).json({ error: "Failed to initialize chat" });
+        }
     }
 }
