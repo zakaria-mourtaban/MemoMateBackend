@@ -72,5 +72,39 @@ export class RAGController {
             console.error("Error initializing chat:", error);
             res.status(500).json({ error: "Failed to initialize chat" });
         }
+	}
+	
+	static async query(req: Request, res: Response) {
+        try {
+            const { chatId, question } = req.body;
+
+            // Load existing vector store
+            const vectorStore = await this.loadOrCreateVectorStore(chatId);
+
+            // Retrieve relevant documents
+            const retrievedDocs = await vectorStore.similaritySearch(question);
+
+            // Get RAG prompt
+            const promptTemplate = await pull<ChatPromptTemplate>("rlm/rag-prompt");
+
+            // Generate response
+            const docsContent = retrievedDocs.map((doc) => doc.pageContent).join("\n");
+            const messages = await promptTemplate.invoke({
+                question,
+                context: docsContent,
+            });
+            const response = await llm.invoke(messages);
+
+            res.status(200).json({ 
+                answer: response.content,
+                sources: retrievedDocs.map(doc => ({
+                    content: doc.pageContent.substring(0, 200) + "...", // Preview of content
+                    metadata: doc.metadata
+                }))
+            });
+        } catch (error) {
+            console.error("Error processing query:", error);
+            res.status(500).json({ error: "Failed to process query" });
+        }
     }
 }
