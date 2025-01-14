@@ -187,7 +187,6 @@ const deleteFromWorkspace = async (
 	}
 };
 
-
 const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const userId = req.user?._id;
@@ -197,10 +196,14 @@ const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
-		const workspace = Workspace.findById(workspaceId);
+		const workspace = await Workspace.findById(workspaceId);
 
 		if (!workspace) {
 			return res.status(400).json({ message: "Workspace not found" });
+		}
+
+		if (workspace.ownerId != userId) {
+			return res.status(401).json({ message: "Unauthorized" });
 		}
 
 		workspace.deleteOne();
