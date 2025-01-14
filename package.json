@@ -3,11 +3,13 @@
   "module": "src/index.ts",
   "type": "module",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "start": "bun --watch ./src/index.ts"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/bun": "latest",
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.7"
   },
@@ -26,6 +28,7 @@
     "bcryptjs": "^2.4.3",
     "cheerio": "^1.0.0",
     "chromadb": "^1.10.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "expressjs": "^1.0.1",
