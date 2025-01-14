@@ -187,6 +187,7 @@ const deleteFromWorkspace = async (
 	}
 };
 
+
 const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const userId = req.user?._id;
