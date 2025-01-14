@@ -1,13 +1,8 @@
 import { Request, Response } from "express";
 import multer from "multer";
-import {
-	IFile,
-	IWorkspace,
-	File,
-	Workspace,
-} from "../models/Workspace";
+import { IFile, IWorkspace, File, Workspace } from "../models/Workspace";
 import User from "../models/User";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import path from "path";
 import fs from "fs";
 
@@ -27,19 +22,18 @@ const createWorkspace = async (req: Request, res: Response): Promise<any> => {
 				.status(400)
 				.json({ message: "Workspace name is required." });
 		}
-		const newWorkspace = await Workspace.create({ name, ownerId: userId }); //create the new workspace object
+		const newWorkspace = await Workspace.create({ name, ownerId: userId });
 
 		const updatedUser = await User.findByIdAndUpdate(
 			userId,
-			{ $push: { workspacesObjects: newWorkspace._id } }, // Add the workspace reference
-			{ new: true } // Return the updated user document
+			{ $push: { workspacesObjects: newWorkspace._id } },
+			{ new: true }
 		);
 
 		if (!updatedUser) {
 			return res.status(404).json({ message: "User not found." });
 		}
 
-		// Respond with success
 		return res.status(201).json({
 			message: "Workspace created and added to user successfully.",
 			workspace: newWorkspace,
@@ -56,7 +50,7 @@ const createWorkspace = async (req: Request, res: Response): Promise<any> => {
 const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const userId = req.user?._id;
-		const id = req.params.id; // Get workspace ID from route params
+		const id = req.params.id;
 
 		if (!userId) {
 			return res
@@ -70,7 +64,6 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 				.json({ message: "Workspace ID is required." });
 		}
 
-		// First verify that the user has access to this workspace
 		const user = await User.findById(userId);
 		if (!user) {
 			return res.status(404).json({ message: "User not found." });
@@ -85,7 +78,6 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 				.json({ message: "Access denied to this workspace." });
 		}
 
-		// Fetch the workspace object
 		const workspace = await Workspace.findById(id);
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
@@ -113,10 +105,8 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
-		// Check if a file was uploaded
 		const file = req.file;
 
-		// Fetch the Workspace
 		const workspace = await Workspace.findById(workspaceId);
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
@@ -126,16 +116,14 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			return res.status(403).json({ message: "Unauthorized." });
 		}
 
-		// Create a new file node
 		const newFile: IFile = new File({
 			_id: new mongoose.Types.ObjectId().toString(),
 			ownerId: userId,
 			name,
-			file: file ? file.filename : null, // Save file metadata only if provided
-			children: file ? null : [], // Set children to null if there's a file, otherwise an empty array
+			file: file ? file.filename : null,
+			children: file ? null : [],
 		});
 
-		// Add the new file's ID to the workspace's workspace array
 		workspace.workspace?.push(newFile._id);
 		await newFile.save();
 		await workspace.save();
@@ -146,7 +134,9 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 		});
 	} catch (error) {
 		console.error("Error adding to workspace:", error);
-		return res.status(500).json({ message: "Internal Server Error", error });
+		return res
+			.status(500)
+			.json({ message: "Internal Server Error", error });
 	}
 };
 
@@ -163,31 +153,22 @@ const deleteFromWorkspace = async (
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
-		// Fetch the Workspace
 		const workspace = await Workspace.findById(workspaceId);
 		if (!workspace) {
-			return res
-				.status(404)
-				.json({ message: "Workspace not found." });
+			return res.status(404).json({ message: "Workspace not found." });
 		}
 
 		if (workspace.ownerId !== userId) {
 			return res.status(403).json({ message: "Unauthorized." });
 		}
 
-		// Find and delete the file node
 		const fileNode = await File.findById(nodeId);
 		if (!fileNode) {
 			return res.status(404).json({ message: "File node not found." });
 		}
 
-		// Delete the associated file from the filesystem
 		if (fileNode.file) {
-			const filePath = path.join(
-				__dirname,
-				"../uploads",
-				fileNode.file
-			);
+			const filePath = path.join(__dirname, "../uploads", fileNode.file);
 			if (fs.existsSync(filePath)) {
 				fs.unlinkSync(filePath);
 			}
@@ -206,4 +187,29 @@ const deleteFromWorkspace = async (
 	}
 };
 
-export { createWorkspace, fetchWorkspace, deleteFromWorkspace, addToWorkspace };
+const getWorkspaces = async (req: Request, res: Response): Promise<any> => {
+	try {
+		const UserId = req.user?.id;
+
+		if (!UserId)
+			return res.status(404).json({ message: "User not found." });
+
+		const user = await User.findById(UserId);
+		if (!user) return res.status(404).json({ message: "User not found" });
+		const workspaceIds = user.workspacesObjects;
+		const workspaces = await Workspace.find({ _id: { $in: workspaceIds } });
+		return res.status(200).json({workspaces})
+	} catch (error) {
+		return res
+			.status(500)
+			.json({ message: "Internal Server Error", error });
+	}
+};
+
+export {
+	createWorkspace,
+	fetchWorkspace,
+	deleteFromWorkspace,
+	addToWorkspace,
+	getWorkspaces,
+};

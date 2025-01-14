@@ -3,12 +3,15 @@ import {
     createWorkspace, 
     addToWorkspace, 
     fetchWorkspace, 
-    deleteFromWorkspace 
+    deleteFromWorkspace, 
+	getWorkspaces
 } from "../controllers/workspace";
 import { protect } from "../middleware/auth";
 import uploadMiddleware from "../middleware/upload";
 
 const router = express.Router();
+
+router.get("/workspace", getWorkspaces);
 
 router.post("/workspace", createWorkspace);
 
