@@ -187,6 +187,32 @@ const deleteFromWorkspace = async (
 	}
 };
 
+const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
+	try {
+		const userId = req.user?._id;
+		const workspaceId = req.params.id;
+
+		if (!userId || !workspaceId) {
+			return res.status(400).json({ message: "Missing required fields" });
+		}
+
+		const workspace = Workspace.findById(workspaceId);
+
+		if (!workspace) {
+			return res.status(400).json({ message: "Workspace not found" });
+		}
+
+		workspace.deleteOne();
+		return res
+			.status(200)
+			.json({ message: "Workspace deleted successfully" });
+	} catch (error) {
+		return res
+			.status(500)
+			.json({ message: "Internal Server Error", error });
+	}
+};
+
 const getWorkspaces = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const UserId = req.user?.id;
@@ -198,7 +224,7 @@ const getWorkspaces = async (req: Request, res: Response): Promise<any> => {
 		if (!user) return res.status(404).json({ message: "User not found" });
 		const workspaceIds = user.workspacesObjects;
 		const workspaces = await Workspace.find({ _id: { $in: workspaceIds } });
-		return res.status(200).json({workspaces})
+		return res.status(200).json({ workspaces });
 	} catch (error) {
 		return res
 			.status(500)
@@ -212,4 +238,5 @@ export {
 	deleteFromWorkspace,
 	addToWorkspace,
 	getWorkspaces,
+	deleteWorkspace,
 };
