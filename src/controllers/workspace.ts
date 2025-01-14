@@ -206,7 +206,7 @@ const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
 
-		workspace.deleteOne();
+		await workspace.deleteOne();
 		return res
 			.status(200)
 			.json({ message: "Workspace deleted successfully" });
