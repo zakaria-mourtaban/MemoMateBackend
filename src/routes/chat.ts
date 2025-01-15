@@ -4,4 +4,6 @@ import { diagramPrompt } from "../controllers/chats";
 
 const router = express.Router();
 
-router.post("/diagram", diagramPrompt)
+router.post("/chat/diagram", diagramPrompt)
+
+export default router

@@ -3,8 +3,10 @@ import dotenv from "dotenv";
 import connectDB from "./config/db";
 import authRoutes from "./routes/auth";
 import workspaceRoutes from "./routes/workspace";
+import chatRoutes from "./routes/chat"
 import cors from "cors";
 import { protect } from "./middleware/auth";
+
 
 dotenv.config();
 connectDB();
@@ -16,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/auth/", authRoutes);
 app.use("/api/", protect, workspaceRoutes);
+app.use("/api/", protect, chatRoutes)
 app.use((req, res, next) => {
 	res.status(404).json({ message: "Not Found" });
 });

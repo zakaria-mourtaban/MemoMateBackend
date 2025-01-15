@@ -175,7 +175,6 @@ export const diagramPrompt = async (req: Request, res: Response) => {
 			"Everything after the prompt tag is the user prompt, generate mermaid syntax to generate the type of diagram requested by the user, do not reply to any message outside of creating these diagrams, if you find that the diagram is not supported by mermaid syntax come up with a way to represent it. <prompt> " +
 				prompt
 		);
-		console.log(answer);
 		res.status(200).json({ response: answer });
 	} catch (error) {
 		res.status(500).json({ error: "Internal server error" });
