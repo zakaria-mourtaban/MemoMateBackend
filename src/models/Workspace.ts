@@ -24,7 +24,7 @@ export const workspaceSchema = new Schema<IWorkspace>(
 		files: [
 			{
 				type: Schema.Types.ObjectId,
-				ref: "Workspace",
+				ref: "Files",
 			},
 		],
 	},
@@ -40,7 +40,7 @@ const fileSchema = new Schema<IFile>(
 		children: [
 			{
 				type: Schema.Types.ObjectId,
-				ref: "File",
+				ref: "Files",
 			},
 		],
 	},

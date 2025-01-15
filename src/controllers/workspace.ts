@@ -79,7 +79,7 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 		}
 
 		// Populate the `workspace` array with the referenced objects
-		const workspace = await Workspace.findById(id).populate("workspace");
+		const workspace = await Workspace.findById(id).populate("files")
 
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
