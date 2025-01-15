@@ -172,7 +172,7 @@ export const diagramPrompt = async (req: Request, res: Response) => {
 		if (!prompt)
 			res.status(400).json({ message: "Missing required parameter" });
 		const answer = await llm.invoke(
-			"Everything after the prompt tag is the user prompt, generate mermaid syntax to generate the type of diagram requested by the user, do not reply to any message outside of creating these diagrams, do not add any formatting that would make the code invalid, if you find that the diagram is not supported by mermaid syntax come up with a way to represent it. <prompt> " +
+			"Everything after the prompt tag is the user prompt, generate mermaid syntax to generate the type of diagram requested by the user, do not reply to any message outside of creating these diagrams, DO NOT ADD FORMATTING, if you find that the diagram is not supported by mermaid syntax come up with a way to represent it. <prompt> " +
 				prompt
 		);
 		res.status(200).json({ response: answer });
