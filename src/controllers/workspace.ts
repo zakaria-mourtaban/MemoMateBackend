@@ -78,7 +78,9 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 				.json({ message: "Access denied to this workspace." });
 		}
 
-		const workspace = await Workspace.findById(id);
+		// Populate the `workspace` array with the referenced objects
+		const workspace = await Workspace.findById(id).populate("workspace");
+
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
 		}
@@ -124,7 +126,7 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			children: file ? null : [],
 		});
 
-		workspace.workspace?.push(newFile._id);
+		workspace.files?.push();
 		await newFile.save();
 		await workspace.save();
 

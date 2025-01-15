@@ -1,15 +1,15 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Schema, Document, Model, ObjectId } from "mongoose";
 
 // Define interfaces
 export interface IWorkspace extends Document {
-	_id: string;
+	_id: ObjectId;
 	ownerId: string;
 	name: string;
-	workspace: String[] | null;
+	files: ObjectId[] | null;
 }
 
 export interface IFile extends Document {
-	_id: string;
+	_id: ObjectId;
 	ownerId: string;
 	name: string;
 	file: string;
@@ -21,7 +21,7 @@ export const workspaceSchema = new Schema<IWorkspace>(
 	{
 		ownerId: { type: String, required: true },
 		name: { type: String, required: true },
-		workspace: [
+		files: [
 			{
 				type: Schema.Types.ObjectId,
 				ref: "Workspace",
@@ -40,7 +40,7 @@ const fileSchema = new Schema<IFile>(
 		children: [
 			{
 				type: Schema.Types.ObjectId,
-				ref: "Workspace",
+				ref: "File",
 			},
 		],
 	},
