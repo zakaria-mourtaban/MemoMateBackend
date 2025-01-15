@@ -165,3 +165,7 @@ export class RAGController {
 		}
 	}
 }
+
+export const diagramPrompt = () => {
+	
+}
