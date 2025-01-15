@@ -166,6 +166,10 @@ export class RAGController {
 	}
 }
 
-export const diagramPrompt = () => {
-	
-}
+export const diagramPrompt = (req: Request, res: Response) => {
+	try {
+		const prompt = req.body.prompt;
+		if (!prompt)
+			res.status(400).json({ message: "Missing required parameter" });
+	} catch (error) {}
+};
