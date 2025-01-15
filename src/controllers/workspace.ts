@@ -126,7 +126,7 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			children: file ? null : [],
 		});
 
-		workspace.files?.push();
+		workspace.files?.push(newFile._id);
 		await newFile.save();
 		await workspace.save();
 
