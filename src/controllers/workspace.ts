@@ -132,7 +132,7 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			ownerId: userId,
 			name,
 			file: file ? file.filename : null,
-			children: file ? null : [],
+			files: file ? null : [],
 		});
 
 		workspace.files?.push(newFile._id);

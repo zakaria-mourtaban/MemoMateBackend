@@ -13,7 +13,7 @@ export interface IFile extends Document {
 	ownerId: string;
 	name: string;
 	file: string;
-	children?: IFile[];
+	files?: IFile[];
 }
 
 // Define Schema for WorkspaceObject
@@ -37,7 +37,7 @@ const fileSchema = new Schema<IFile>(
 		file: { type: String, required: true },
 		ownerId: { type: String, required: true },
 		name: { type: String, required: true },
-		children: [
+		files: [
 			{
 				type: Schema.Types.ObjectId,
 				ref: "Files",
