@@ -82,7 +82,7 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 		const workspace = await Workspace.findById(id).populate({
 			path: "files",
 			populate: {
-				path: "children",
+				path: "files",
 				model: "Files",
 			},
 		});
