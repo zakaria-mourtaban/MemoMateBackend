@@ -83,9 +83,9 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 			path: "files",
 			populate: {
 				path: "children",
-				model: "Files"
-			}
-		})
+				model: "Files",
+			},
+		});
 
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
@@ -106,16 +106,19 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const userId = req.user?._id;
-		const workspaceId = req.params.id;
+		const Id = req.params.id;
 		const { name } = req.body;
 
-		if (!userId || !workspaceId || !name) {
+		if (!userId || !Id || !name) {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
 		const file = req.file;
 
-		const workspace = await Workspace.findById(workspaceId);
+		let workspace = await Workspace.findById(Id);
+		if (!workspace) {
+			workspace = await File.findById(Id);
+		}
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
 		}
