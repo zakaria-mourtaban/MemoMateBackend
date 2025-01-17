@@ -80,20 +80,19 @@ const fetchWorkspace = async (req: Request, res: Response): Promise<any> => {
 
 		// Populate the `workspace` array with the referenced objects
 		const workspace = await Workspace.findById(id).populate({
-			path: "files",
+			path: "children",
 			populate: {
-				path: "files",
-				model: "Files",
+				path: "children",
+				model: "File",
 			},
 		});
 
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
 		}
-
 		return res.status(200).json({
 			message: "Workspace retrieved successfully.",
-			workspace,
+			workspace: workspace,
 		});
 	} catch (error) {
 		console.error("Error fetching workspace:", error);
@@ -122,7 +121,9 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
 		}
-
+		if (!workspace.children) {
+			return res.status(404).json({ message: "Not a folder" });
+		}
 		if (workspace.ownerId.toString() !== userId.toString()) {
 			return res.status(403).json({ message: "Unauthorized." });
 		}
@@ -131,11 +132,11 @@ const addToWorkspace = async (req: Request, res: Response): Promise<any> => {
 			_id: new mongoose.Types.ObjectId().toString(),
 			ownerId: userId,
 			name,
-			file: file ? file.filename : null,
-			files: file ? null : [],
+			file: file ? file.filename : name,
+			children: file ? [] : null,
 		});
 
-		workspace.files?.push(newFile._id);
+		workspace.children?.push(newFile._id);
 		await newFile.save();
 		await workspace.save();
 
