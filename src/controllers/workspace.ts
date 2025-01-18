@@ -208,8 +208,10 @@ const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
-		const workspace = await Workspace.findById(workspaceId);
+		let workspace = await Workspace.findById(workspaceId);
 
+		if (!workspace)
+			workspace = await File.findById(workspaceId)
 		if (!workspace) {
 			return res.status(400).json({ message: "Workspace not found" });
 		}
