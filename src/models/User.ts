@@ -22,7 +22,7 @@ const userSchema = new Schema<IUser, UserModel>(
 		email: { type: String, required: true, unique: true },
 		password: { type: String, required: true },
 		workspacesObjects: [{ type: Schema.Types.ObjectId, ref: "Workspace" }],
-		chats: [{ type: String }],
+		chats: [{ type: Schema.Types.ObjectId , ref : "Chats"}],
 	},
 	{ timestamps: true }
 );

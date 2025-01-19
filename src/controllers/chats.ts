@@ -92,8 +92,8 @@ export const getalltext = async (
 	try {
 		const userId = req.user?._id;
 		const id = req.params.id;
-
-		if (!userId) {
+		const name = req.body.name
+		if (!userId || !name) {
 			return res
 				.status(401)
 				.json({ message: "Unauthorized. User not found." });
@@ -150,7 +150,7 @@ export const getalltext = async (
 
 		// Create a Chat document linked to this vector store
 		const newChat = await Chat.create({
-			name: `Chat for Workspace ${id}`,
+			name: name,
 			vectorStore: vectorStorePath, // Store the vector store file path
 		});
 
@@ -287,3 +287,21 @@ export const queryChatVectorStore = async (req: Request, res: Response): Promise
             .json({ message: "Internal Server Error", error });
     }
 };
+
+export const getChats = async (req: Request, res: Response): Promise<any>  => {
+    const userId = req.user?._id;
+
+	try {
+        // Find the user by their ID
+        const user = await User.findById(userId).populate("chats");
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.status(200).json({ chats : user.chats });
+    } catch (error) {
+        console.error("Error fetching chats:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
