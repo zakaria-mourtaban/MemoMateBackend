@@ -19,9 +19,14 @@ async function parseDocx(filePath: string) {
 	return result.value;
 }
 async function parsePdf(filePath: string) {
-	const dataBuffer = fs.readFile(filePath);
-	const data = await pdfParse(dataBuffer);
-	return data.text;
+	try {
+		const dataBuffer = await fs.readFile(filePath);
+		const data = await pdfParse(dataBuffer); // Pass the buffer directly
+		return data.text;
+	} catch (error) {
+		console.error(`Error parsing PDF file ${filePath}:`, error);
+		return ""; // Return an empty string if parsing fails
+	}
 }
 
 async function parseExcalidraw(filePath: string) {
@@ -78,7 +83,10 @@ async function processWorkspace(workspace: any): Promise<string> {
 	return combinedText;
 }
 
-export const getalltext = async (req: Request, res: Response) => {
+export const getalltext = async (
+	req: Request,
+	res: Response
+): Promise<any> => {
 	try {
 		const userId = req.user?._id;
 		const id = req.params.id;
@@ -131,7 +139,7 @@ export const getalltext = async (req: Request, res: Response) => {
 			.status(500)
 			.json({ message: "Internal Server Error", error });
 	}
-}
+};
 
 export const diagramPrompt = async (req: Request, res: Response) => {
 	try {
