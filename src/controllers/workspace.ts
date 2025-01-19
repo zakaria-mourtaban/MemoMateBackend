@@ -210,8 +210,7 @@ const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
 
 		let workspace = await Workspace.findById(workspaceId);
 
-		if (!workspace)
-			workspace = await File.findById(workspaceId)
+		if (!workspace) workspace = await File.findById(workspaceId);
 		if (!workspace) {
 			return res.status(400).json({ message: "Workspace not found" });
 		}
@@ -254,34 +253,43 @@ const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
 	try {
 		const userId = req.user?._id;
 		const workspaceId = req.params.id;
+		const newContent = req.body;
 
-		if (!userId || !workspaceId) {
+		if (!userId || !workspaceId || !newContent) {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
 
-		let workspace = await Workspace.findById(workspaceId);
+		const uploadsDir = path.resolve("../uploads");
+		const filePath = path.join(uploadsDir, `${workspaceId}.excalidraw`);
 
-		if (!workspace)
-			workspace = await File.findById(workspaceId)
-		if (!workspace) {
+		try {
+			await fs.promises.access(filePath, fs.constants.W_OK);
+		} catch (err) {
 			return res.status(400).json({ message: "Workspace not found" });
 		}
 
+		const workspace = await File.findById(workspaceId);
+		if (!workspace) {
+			return res.status(400).json({ message: "Workspace not found" });
+		}
 		if (workspace.ownerId != userId) {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
 
-		await workspace.deleteOne();
+		const jsonContent = JSON.stringify(newContent, null, 2);
+		await fs.promises.writeFile(filePath, jsonContent, {
+			encoding: "utf8",
+		});
+
 		return res
 			.status(200)
-			.json({ message: "Workspace deleted successfully" });
+			.json({ message: "Workspace updated successfully" });
 	} catch (error) {
 		return res
 			.status(500)
 			.json({ message: "Internal Server Error", error });
 	}
 };
-
 
 export {
 	createWorkspace,
