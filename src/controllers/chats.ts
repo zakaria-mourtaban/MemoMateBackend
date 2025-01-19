@@ -184,3 +184,66 @@ export const diagramPrompt = async (req: Request, res: Response) => {
 		res.status(500).json({ message: "Internal server error", error });
 	}
 };
+
+xport const queryChatVectorStore = async (req: Request, res: Response): Promise<any> => {
+    try {
+        const userId = req.user?._id;
+        const chatId = req.params.id;
+        const { query } = req.body;
+
+        // Input validation
+        if (!userId) {
+            return res
+                .status(401)
+                .json({ message: "Unauthorized. User not found." });
+        }
+
+        if (!chatId) {
+            return res
+                .status(400)
+                .json({ message: "Chat ID is required." });
+        }
+
+        if (!query) {
+            return res
+                .status(400)
+                .json({ message: "Query is required." });
+        }
+
+        // Check if the user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
+
+        // Check if the user has access to the chat
+        const hasAccess = user.chats.includes(new mongoose.Types.ObjectId(chatId));
+        if (!hasAccess) {
+            return res
+                .status(403)
+                .json({ message: "Access denied to this chat." });
+        }
+
+        // Find the chat document
+        const chat = await Chat.findById(chatId);
+        if (!chat) {
+            return res.status(404).json({ message: "Chat not found." });
+        }
+
+        // Load the vector store from the file path
+        const vectorStore = await FaissStore.load(chat.vectorStore, embeddings);
+
+        // Perform a similarity search on the vector store
+        const results = await vectorStore.similaritySearch(query, 5); // Return top 5 results
+
+        return res.status(200).json({
+            message: "Query executed successfully.",
+            results,
+        });
+    } catch (error) {
+        console.error("Error querying chat vector store:", error);
+        return res
+            .status(500)
+            .json({ message: "Internal Server Error", error });
+    }
+};
