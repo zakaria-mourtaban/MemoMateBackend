@@ -20,7 +20,7 @@ router.post("/workspace", createWorkspace);
 
 router.get("/workspace/:id", fetchWorkspace);
 
-router.get("/workspace/:id/file", fetchFile);
+router.patch("/workspace/:id/file", fetchFile);
 
 router.post("/workspace/:id/add", uploadMiddleware, addToWorkspace);
 
