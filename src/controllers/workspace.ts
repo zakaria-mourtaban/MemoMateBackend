@@ -298,4 +298,5 @@ export {
 	addToWorkspace,
 	getWorkspaces,
 	deleteWorkspace,
+	updateWorkspace
 };
