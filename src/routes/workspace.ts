@@ -6,7 +6,8 @@ import {
     deleteFromWorkspace, 
 	getWorkspaces,
 	deleteWorkspace,
-	updateWorkspace
+	updateWorkspace,
+	fetchFile
 } from "../controllers/workspace";
 import { protect } from "../middleware/auth";
 import uploadMiddleware from "../middleware/upload";
@@ -18,6 +19,8 @@ router.get("/workspace", getWorkspaces);
 router.post("/workspace", createWorkspace);
 
 router.get("/workspace/:id", fetchWorkspace);
+
+router.get("/workspace/:id/file", fetchFile);
 
 router.post("/workspace/:id/add", uploadMiddleware, addToWorkspace);
 

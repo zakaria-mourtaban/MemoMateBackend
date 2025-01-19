@@ -266,11 +266,12 @@ const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
 		if (workspace.ownerId != userId) {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
-		const uploadsDir = path.resolve("../uploads");
+		const uploadsDir = path.resolve("../MemoMateBackend/src/uploads");
 		const filePath = path.join(uploadsDir, `${workspace.file}`);
-
+		console.log(filePath)
+		console.log(`C:\\Users\\zakaria\\Documents\\Projects\\MemoMate\\MemoMateBackend\\src\\uploads\\file-1737296425389-781218993.excalidraw`)
 		try {
-			await fs.promises.access(filePath, fs.constants.W_OK);
+			await fs.promises.access(filePath, fs.constants.F_OK);
 		} catch (err) {
 			return res.status(400).json({ message: "File not found" });
 		}
@@ -308,7 +309,7 @@ const fetchFile = async (req: Request, res: Response): Promise<any> => {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
 
-		const uploadsDir = path.resolve("../uploads");
+		const uploadsDir = path.resolve("../MemoMateBackend/src/uploads");
 		const filePath = path.join(uploadsDir, `${workspace.file}`);
 
 		try {
@@ -338,5 +339,6 @@ export {
 	addToWorkspace,
 	getWorkspaces,
 	deleteWorkspace,
-	updateWorkspace
+	updateWorkspace,
+	fetchFile
 };
