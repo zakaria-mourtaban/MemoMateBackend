@@ -5,7 +5,8 @@ import {
     fetchWorkspace, 
     deleteFromWorkspace, 
 	getWorkspaces,
-	deleteWorkspace
+	deleteWorkspace,
+	updateWorksapce
 } from "../controllers/workspace";
 import { protect } from "../middleware/auth";
 import uploadMiddleware from "../middleware/upload";
@@ -23,5 +24,7 @@ router.post("/workspace/:id/add", uploadMiddleware, addToWorkspace);
 router.put("/workspace/:id/delete", deleteFromWorkspace);
 
 router.patch("/workspace/:id/delete", deleteWorkspace)
+
+router.post("/workspace/:id/update", updateWorksapce)
 
 export default router;

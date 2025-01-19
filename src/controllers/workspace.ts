@@ -250,6 +250,39 @@ const getWorkspaces = async (req: Request, res: Response): Promise<any> => {
 	}
 };
 
+const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
+	try {
+		const userId = req.user?._id;
+		const workspaceId = req.params.id;
+
+		if (!userId || !workspaceId) {
+			return res.status(400).json({ message: "Missing required fields" });
+		}
+
+		let workspace = await Workspace.findById(workspaceId);
+
+		if (!workspace)
+			workspace = await File.findById(workspaceId)
+		if (!workspace) {
+			return res.status(400).json({ message: "Workspace not found" });
+		}
+
+		if (workspace.ownerId != userId) {
+			return res.status(401).json({ message: "Unauthorized" });
+		}
+
+		await workspace.deleteOne();
+		return res
+			.status(200)
+			.json({ message: "Workspace deleted successfully" });
+	} catch (error) {
+		return res
+			.status(500)
+			.json({ message: "Internal Server Error", error });
+	}
+};
+
+
 export {
 	createWorkspace,
 	fetchWorkspace,
