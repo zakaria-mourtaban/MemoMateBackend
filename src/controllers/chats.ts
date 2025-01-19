@@ -5,8 +5,10 @@ import { FaissStore } from "@langchain/community/vectorstores/faiss";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { pull } from "langchain/hub";
-import { File, IFile, IWorkspace } from "../models/Workspace";
+import { File, IFile, IWorkspace, Workspace } from "../models/Workspace";
 import { embeddings, llm } from "./langchainRAG/langchainRAG";
+import User from "../models/User";
+import mongoose from "mongoose";
 const path = require("path");
 const mammoth = require("mammoth");
 const pdfParse = require("pdf-parse");
@@ -77,7 +79,58 @@ async function processWorkspace(workspace: any): Promise<string> {
 }
 
 export const getalltext = async (req: Request, res: Response) => {
-	
+	try {
+		const userId = req.user?._id;
+		const id = req.params.id;
+
+		if (!userId) {
+			return res
+				.status(401)
+				.json({ message: "Unauthorized. User not found." });
+		}
+
+		if (!id) {
+			return res
+				.status(400)
+				.json({ message: "Workspace ID is required." });
+		}
+
+		const user = await User.findById(userId);
+		if (!user) {
+			return res.status(404).json({ message: "User not found." });
+		}
+
+		const hasAccess = user.workspacesObjects.includes(
+			new mongoose.Types.ObjectId(id)
+		);
+		if (!hasAccess) {
+			return res
+				.status(403)
+				.json({ message: "Access denied to this workspace." });
+		}
+
+		// Populate the `workspace` array with the referenced objects
+		const workspace = await Workspace.findById(id).populate({
+			path: "children",
+			populate: {
+				path: "children",
+				model: "File",
+			},
+		});
+
+		if (!workspace) {
+			return res.status(404).json({ message: "Workspace not found." });
+		}
+		return res.status(200).json({
+			message: "Workspace retrieved successfully.",
+			workspace: await processWorkspace(workspace),
+		});
+	} catch (error) {
+		console.error("Error fetching workspace:", error);
+		return res
+			.status(500)
+			.json({ message: "Internal Server Error", error });
+	}
 }
 
 export const diagramPrompt = async (req: Request, res: Response) => {
