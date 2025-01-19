@@ -185,7 +185,7 @@ export const diagramPrompt = async (req: Request, res: Response) => {
 	}
 };
 
-xport const queryChatVectorStore = async (req: Request, res: Response): Promise<any> => {
+export const queryChatVectorStore = async (req: Request, res: Response): Promise<any> => {
     try {
         const userId = req.user?._id;
         const chatId = req.params.id;
@@ -233,12 +233,51 @@ xport const queryChatVectorStore = async (req: Request, res: Response): Promise<
         // Load the vector store from the file path
         const vectorStore = await FaissStore.load(chat.vectorStore, embeddings);
 
-        // Perform a similarity search on the vector store
-        const results = await vectorStore.similaritySearch(query, 5); // Return top 5 results
+        // Define the RAG workflow
+        const promptTemplate = await pull<ChatPromptTemplate>("rlm/rag-prompt");
+
+        const InputStateAnnotation = Annotation.Root({
+            question: Annotation<string>,
+        });
+
+        const StateAnnotation = Annotation.Root({
+            question: Annotation<string>,
+            context: Annotation<Document[]>,
+            answer: Annotation<string>,
+        });
+
+        // Define application steps
+        const retrieve = async (state: typeof InputStateAnnotation.State) => {
+            const retrievedDocs = await vectorStore.similaritySearch(state.question, 5); // Retrieve top 5 documents
+            return { context: retrievedDocs };
+        };
+
+        const generate = async (state: typeof StateAnnotation.State) => {
+            const docsContent = state.context.map((doc) => doc.pageContent).join("\n");
+            const messages = await promptTemplate.invoke({
+                question: state.question,
+                context: docsContent,
+            });
+            const response = await llm.invoke(messages);
+            return { answer: response.content };
+        };
+
+        // Compile the RAG workflow
+        const graph = new StateGraph(StateAnnotation)
+            .addNode("retrieve", retrieve)
+            .addNode("generate", generate)
+            .addEdge("__start__", "retrieve")
+            .addEdge("retrieve", "generate")
+            .addEdge("generate", "__end__")
+            .compile();
+
+        // Invoke the RAG workflow with the user's query
+        const inputs = { question: query };
+        const result = await graph.invoke(inputs);
 
         return res.status(200).json({
             message: "Query executed successfully.",
-            results,
+            answer: result.answer,
         });
     } catch (error) {
         console.error("Error querying chat vector store:", error);
