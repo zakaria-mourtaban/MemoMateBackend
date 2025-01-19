@@ -10,6 +10,7 @@ import { embeddings, llm } from "./langchainRAG/langchainRAG";
 import User from "../models/User";
 import mongoose from "mongoose";
 import { Chat } from "../models/Chat";
+import { StateGraph } from "@langchain/langgraph";
 const path = require("path");
 const mammoth = require("mammoth");
 const pdfParse = require("pdf-parse");
