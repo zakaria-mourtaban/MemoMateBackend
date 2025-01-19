@@ -218,7 +218,7 @@ export const queryChatVectorStore = async (req: Request, res: Response): Promise
         }
 
         // Check if the user has access to the chat
-        const hasAccess = user.chats.includes(new mongoose.Types.ObjectId(chatId));
+        const hasAccess = user.chats.includes(chatId);
         if (!hasAccess) {
             return res
                 .status(403)
