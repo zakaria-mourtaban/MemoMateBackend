@@ -258,16 +258,7 @@ const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
 		if (!userId || !workspaceId || !newContent) {
 			return res.status(400).json({ message: "Missing required fields" });
 		}
-
-		const uploadsDir = path.resolve("../uploads");
-		const filePath = path.join(uploadsDir, `${workspaceId}.excalidraw`);
-
-		try {
-			await fs.promises.access(filePath, fs.constants.W_OK);
-		} catch (err) {
-			return res.status(400).json({ message: "Workspace not found" });
-		}
-
+		
 		const workspace = await File.findById(workspaceId);
 		if (!workspace) {
 			return res.status(400).json({ message: "Workspace not found" });
@@ -275,6 +266,15 @@ const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
 		if (workspace.ownerId != userId) {
 			return res.status(401).json({ message: "Unauthorized" });
 		}
+		const uploadsDir = path.resolve("../uploads");
+		const filePath = path.join(uploadsDir, `${workspace.file}`);
+
+		try {
+			await fs.promises.access(filePath, fs.constants.W_OK);
+		} catch (err) {
+			return res.status(400).json({ message: "File not found" });
+		}
+
 
 		const jsonContent = JSON.stringify(newContent, null, 2);
 		await fs.promises.writeFile(filePath, jsonContent, {
@@ -284,6 +284,46 @@ const updateWorkspace = async (req: Request, res: Response): Promise<any> => {
 		return res
 			.status(200)
 			.json({ message: "Workspace updated successfully" });
+	} catch (error) {
+		return res
+			.status(500)
+			.json({ message: "Internal Server Error", error });
+	}
+};
+
+const fetchFile = async (req: Request, res: Response): Promise<any> => {
+	try {
+		const userId = req.user?._id;
+		const workspaceId = req.params.id;
+
+		if (!userId || !workspaceId) {
+			return res.status(400).json({ message: "Missing required fields" });
+		}
+
+		const workspace = await File.findById(workspaceId);
+		if (!workspace) {
+			return res.status(404).json({ message: "Workspace not found" });
+		}
+		if (workspace.ownerId != userId) {
+			return res.status(401).json({ message: "Unauthorized" });
+		}
+
+		const uploadsDir = path.resolve("../uploads");
+		const filePath = path.join(uploadsDir, `${workspace.file}`);
+
+		try {
+			await fs.promises.access(filePath, fs.constants.R_OK);
+		} catch (err) {
+			return res.status(404).json({ message: "File not found" });
+		}
+
+		const fileContent = await fs.promises.readFile(filePath, {
+			encoding: "utf8",
+		});
+
+		const jsonContent = JSON.parse(fileContent);
+
+		return res.status(200).json(jsonContent);
 	} catch (error) {
 		return res
 			.status(500)
