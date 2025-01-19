@@ -9,6 +9,7 @@ import { File, IFile, IWorkspace, Workspace } from "../models/Workspace";
 import { embeddings, llm } from "./langchainRAG/langchainRAG";
 import User from "../models/User";
 import mongoose from "mongoose";
+import { Chat } from "../models/Chat";
 const path = require("path");
 const mammoth = require("mammoth");
 const pdfParse = require("pdf-parse");
@@ -129,9 +130,37 @@ export const getalltext = async (
 		if (!workspace) {
 			return res.status(404).json({ message: "Workspace not found." });
 		}
+
+		const combinedText = await processWorkspace(workspace);
+
+		// Split the text into chunks
+		const splitter = new RecursiveCharacterTextSplitter({
+			chunkSize: 1000,
+			chunkOverlap: 200,
+		});
+		const docs = await splitter.createDocuments([combinedText]);
+
+		// Create a vector store from the documents
+		const vectorStore = await FaissStore.fromDocuments(docs, embeddings);
+
+		// Save the vector store to a file
+		const vectorStorePath = join("./vectorstores", `${id}.faiss`);
+		await vectorStore.save(vectorStorePath);
+
+		// Create a Chat document linked to this vector store
+		const newChat = await Chat.create({
+			name: `Chat for Workspace ${id}`,
+			vectorStore: vectorStorePath, // Store the vector store file path
+		});
+
+		// Associate the chat with the user
+		user.chats.push(newChat._id);
+		await user.save();
+
 		return res.status(200).json({
-			message: "Workspace retrieved successfully.",
-			workspace: await processWorkspace(workspace),
+			message: "Workspace retrieved, vector store created, and chat linked successfully.",
+			workspace: combinedText,
+			chat: newChat,
 		});
 	} catch (error) {
 		console.error("Error fetching workspace:", error);
