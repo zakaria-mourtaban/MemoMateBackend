@@ -8,11 +8,13 @@ export interface IUser extends Document {
 	name: string;
 	email: string;
 	password: string;
-	role: string; // Add role field
+	role: string;
+	banned: boolean;
+	lastLogin: Date;
 	matchPassword(enteredPassword: string): Promise<boolean>;
 	workspacesObjects: mongoose.Types.ObjectId[];
 	chats: mongoose.Types.ObjectId[];
-  }
+}
 // Create a type that knows about both the document and methods
 type UserModel = Model<IUser>;
 
@@ -21,12 +23,15 @@ const userSchema = new Schema<IUser, UserModel>(
 	  name: { type: String, required: true },
 	  email: { type: String, required: true, unique: true },
 	  password: { type: String, required: true },
-	  role: { type: String, enum: ['user', 'admin'], default: 'user' }, // Define roles
+	  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+	  banned: { type: Boolean, default: false },
+	  lastLogin: { type: Date, default: Date.now },
 	  workspacesObjects: [{ type: Schema.Types.ObjectId, ref: "Workspace" }],
 	  chats: [{ type: Schema.Types.ObjectId, ref: "Chats" }],
 	},
 	{ timestamps: true }
   );
+  
 
 // This automatically hashes the "password" field, it is localized so that you dont have to call it manually
 userSchema.pre<IUser>("save", async function (this: IUser, next) {
