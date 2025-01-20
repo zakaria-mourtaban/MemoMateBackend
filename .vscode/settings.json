@@ -1,0 +1,5 @@
+{
+	"editor.cursorSmoothCaretAnimation": "on",
+	"editor.smoothScrolling": true,
+	"terminal.integrated.smoothScrolling": true
+}
