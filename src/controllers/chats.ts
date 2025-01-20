@@ -218,7 +218,8 @@ export const queryChatVectorStore = async (req: Request, res: Response): Promise
         }
 
         // Check if the user has access to the chat
-        const hasAccess = user.chats.includes(chatId);
+		const hasAccess = user.chats.includes(chatId);
+		console.log(chatId)
         if (!hasAccess) {
             return res
                 .status(403)
