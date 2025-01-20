@@ -14,6 +14,7 @@ import { Annotation, StateGraph } from "@langchain/langgraph";
 const path = require("path");
 const mammoth = require("mammoth");
 const pdfParse = require("pdf-parse");
+const { ObjectId } = require('mongodb');
 const VECTOR_STORE_DIR = "./vector_stores";
 
 async function parseDocx(filePath: string) {
@@ -155,7 +156,7 @@ export const getalltext = async (
 		});
 
 		// Associate the chat with the user
-		user.chats.push(newChat._id);
+		user.chats.push(new ObjectId(newChat._id));
 		await user.save();
 
 		return res.status(200).json({
@@ -218,7 +219,7 @@ export const queryChatVectorStore = async (req: Request, res: Response): Promise
         }
 
         // Check if the user has access to the chat
-		const hasAccess = user.chats.includes(chatId);
+		const hasAccess = user.chats.includes(new ObjectId(chatId));
 		console.log(chatId)
         if (!hasAccess) {
             return res
