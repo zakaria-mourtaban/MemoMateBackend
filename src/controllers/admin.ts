@@ -35,7 +35,7 @@ export const getAdminMetrics = async (req: Request, res: Response) => {
   }
 };
 
-export const banUser = async (req: Request, res: Response) => {
+export const banUser = async (req: Request, res: Response) : Promise<any> => {
   const userId = req.params.id;
   try {
     const user = await User.findByIdAndUpdate(userId, { banned: true }, { new: true });
@@ -48,7 +48,7 @@ export const banUser = async (req: Request, res: Response) => {
   }
 };
 
-export const changeUserRole = async (req: Request, res: Response) => {
+export const changeUserRole = async (req: Request, res: Response): Promise<any>=> {
   const userId = req.params.id;
   const newRole = req.body.role;
   if (!['user', 'admin'].includes(newRole)) {
