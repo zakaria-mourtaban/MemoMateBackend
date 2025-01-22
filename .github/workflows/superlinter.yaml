@@ -1,4 +1,4 @@
-name: Super-Linter
+name: Lint Code with ESLint
 
 on:
   push:
@@ -6,37 +6,21 @@ on:
       - main
 
 jobs:
-  super-lint:
-    name: Lint code base
+  lint:
+    name: Run ESLint
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Cache node modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.npm
-            node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
 
-      - name: Run Super-Linter
-        uses: github/super-linter@v4
-        env:
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ESLINTRC: eslint.config.js
-          
-      - name: Cache lint results
-        uses: actions/cache@v4
-        with:
-          path: .eslintcache
-          key: ${{ runner.os }}-eslint-cache-${{ hashFiles('**/.eslintrc.js') }}
-          restore-keys: |
-            ${{ runner.os }}-eslint-cache-
+      - name: Run ESLint
+        run: |
+          npx eslint .
