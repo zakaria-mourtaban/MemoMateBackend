@@ -66,7 +66,7 @@ const graph = new StateGraph(StateAnnotation)
 	.addEdge("generate", "__end__")
 	.compile();
 
-let inputs = { question: "What is Task Decomposition?" };
+const inputs = { question: "What is Task Decomposition?" };
 
 const result = await graph.invoke(inputs);
 console.log(result.answer);
