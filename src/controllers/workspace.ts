@@ -212,11 +212,11 @@ const deleteWorkspace = async (req: Request, res: Response): Promise<any> => {
 
 		if (!workspace) workspace = await File.findById(workspaceId);
 		if (!workspace) {
-			return res.status(400).json({ message: "Workspace not found" });
+			return res.status(400).json({ message: "Workspace has not found" });
 		}
 
 		if (workspace.ownerId != userId) {
-			return res.status(401).json({ message: "Unauthorized" });
+			return res.status(401).json({ message: "Unauthorized action" });
 		}
 
 		await workspace.deleteOne();
