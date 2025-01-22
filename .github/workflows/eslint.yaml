@@ -48,7 +48,7 @@ jobs:
       - name: SSH into EC2 and deploy
         run: |
           ssh -o StrictHostKeyChecking=no -t ubuntu@15.188.63.103 <<EOF
-            cd /path/to/MemoMateBackend
+            cd MemoMateBackend
             git pull
             sudo systemctl restart memomate-service.service
           EOF
