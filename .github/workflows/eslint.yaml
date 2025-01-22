@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  lint:
+  eslint:
     name: eslint
     runs-on: ubuntu-latest
 
