@@ -38,20 +38,17 @@ jobs:
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
       - name: Add EC2 to known hosts
         run: |
-          mkdir -p ~/.ssh
           ssh-keyscan -H 15.188.63.103 >> ~/.ssh/known_hosts
 
       - name: SSH into EC2 and deploy
         run: |
           ssh -o StrictHostKeyChecking=no -t ubuntu@15.188.63.103 <<EOF
-            cd MemoMateBackend
+            cd /path/to/MemoMateBackend
             git pull
             sudo systemctl restart memomate-service.service
           EOF
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
